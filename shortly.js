@@ -3,6 +3,7 @@ var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt-nodejs');
+var session = require('express-session');
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -15,6 +16,8 @@ var app = express();
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
+
+app.use(session({ secret: 'sdjfasi984riasdf9KJA889sd02-30-secret-cat', cookie: { maxAge: 60000 }}));
 app.use(partials());
 // Parse JSON (uniform resource locators)
 app.use(bodyParser.json());
@@ -27,6 +30,11 @@ app.use(express.static(__dirname + '/public'));
 /************************************************************/
 
 app.get('/', function(req, res) {
+  if (req.session.loggedIn) {
+    console.log("Yeah, youre logged in");
+  } else {
+    console.log("Who are you?");
+  }
   res.render('index.ejs', { layout : 'layout' });
 });
 
@@ -116,12 +124,18 @@ app.post('/login', function (req, res) {
       if (!user) {
         res.redirect('/login');
       } else {
+        req.session.loggedIn = true;
         res.redirect('/');
       }
     }).catch(function (e) {
       res.redirect('/login');
     });
 
+});
+
+app.get('/logout', function (req, res) {
+  req.session.loggedIn = false;   
+  res.render('index.ejs', { layout : 'layout' });
 });
 
 /************************************************************/
