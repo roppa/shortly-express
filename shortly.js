@@ -26,6 +26,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 function checkUser (req, res, next) {
+  console.log(req.session.user)
   if (req.session.user) {
     next();
   } else {
@@ -123,23 +124,20 @@ app.post('/login', function (req, res) {
   var username = req.body.username;
   var password = req.body.password;
 
-  User.login(username, password)
-    .then(function(user) {
-      if (!user) {
-        res.redirect('/login');
-      } else {
-        req.session.user = true;
-        res.redirect('/');
-      }
-    }).catch(function (e) {
+  User.login(username, password, function (result) {
+    if (result) {
+      req.session.user = true;
+      res.redirect('/');
+    } else {
       res.redirect('/login');
-    });
+    }
+  });
 
 });
 
-app.post('/logout', function (req, res) {
+app.get('/logout', function (req, res) {
   req.session.user = false;
-  res.render('index.ejs', { layout : 'layout' });
+  res.render('login.ejs', { layout : 'layout' });
 });
 
 /************************************************************/
