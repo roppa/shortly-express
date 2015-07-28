@@ -25,30 +25,34 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
+function checkUser (req, res, next) {
+  if (req.session.user) {
+    next();
+  } else {
+    req.session.error = 'Access denied';
+    res.redirect('/login');
+  }
+}
+
 /************************************************************/
 // Site routes
 /************************************************************/
 
-app.get('/', function(req, res) {
-  if (req.session.loggedIn) {
-    console.log("Yeah, youre logged in");
-  } else {
-    console.log("Who are you?");
-  }
+app.get('/', checkUser, function(req, res) {
   res.render('index.ejs', { layout : 'layout' });
 });
 
-app.get('/create', function(req, res) {
+app.get('/create', checkUser, function(req, res) {
   res.render('index');
 });
 
-app.get('/links', function(req, res) {
+app.get('/links', checkUser, function(req, res) {
   Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
   });
 });
 
-app.post('/links', function(req, res) {
+app.post('/links', checkUser, function(req, res) {
   var uri = req.body.url;
 
   if (!util.isValidUrl(uri)) {
@@ -124,7 +128,7 @@ app.post('/login', function (req, res) {
       if (!user) {
         res.redirect('/login');
       } else {
-        req.session.loggedIn = true;
+        req.session.user = true;
         res.redirect('/');
       }
     }).catch(function (e) {
@@ -133,8 +137,8 @@ app.post('/login', function (req, res) {
 
 });
 
-app.get('/logout', function (req, res) {
-  req.session.loggedIn = false;   
+app.post('/logout', function (req, res) {
+  req.session.user = false;
   res.render('index.ejs', { layout : 'layout' });
 });
 

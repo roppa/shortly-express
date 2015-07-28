@@ -40,10 +40,10 @@ describe('', function() {
       .del()
       .catch(function(error) {
         // uncomment when writing authentication tests
-        // throw {
-        //   type: 'DatabaseError',
-        //   message: 'Failed to create test setup data'
-        // };
+        throw {
+          type: 'DatabaseError',
+          message: 'Failed to create test setup data'
+        };
       });
 
     // delete user Phillip from db so it can be created later for the test
@@ -52,10 +52,10 @@ describe('', function() {
       .del()
       .catch(function(error) {
         // uncomment when writing authentication tests
-        // throw {
-        //   type: 'DatabaseError',
-        //   message: 'Failed to create test setup data'
-        // };
+        throw {
+          type: 'DatabaseError',
+          message: 'Failed to create test setup data'
+        };
       });
   // });
 
@@ -63,7 +63,7 @@ describe('', function() {
 
     var requestWithSession = request.defaults({jar: true});
 
-var beforeEach = function(){};
+    var beforeEach = function(){};
       // create a user that we can then log-in with
       new User({
           'username': 'Phillip',
@@ -136,13 +136,14 @@ var beforeEach = function(){};
 
       it('Fetches the link url title', function (done) {
         requestWithSession(options, function(error, res, body) {
+          console.log(body.url)
           db.knex('urls')
-            .where('title', '=', 'Funny animal pictures, funny animals, funniest dogs')
+            .where('title', '=', "Funny pictures of animals, funny dog pictures")
             .then(function(urls) {
               if (urls['0'] && urls['0']['title']) {
                 var foundTitle = urls['0']['title'];
               }
-              expect(foundTitle).to.equal('Funny animal pictures, funny animals, funniest dogs');
+              expect(foundTitle).to.equal("Funny pictures of animals, funny dog pictures");
               done();
             });
         });
@@ -213,10 +214,11 @@ var beforeEach = function(){};
 
   }); // 'Link creation'
 
-  xdescribe('Privileged Access:', function(){
+  describe('Privileged Access:', function(){
 
     it('Redirects to login page if a user tries to access the main page and is not signed in', function(done) {
       request('http://127.0.0.1:4568/', function(error, res, body) {
+        console.log(res.req.path);
         expect(res.req.path).to.equal('/login');
         done();
       });
