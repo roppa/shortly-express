@@ -15,7 +15,11 @@ var User = db.Model.extend({
         .fetch({ require : true })
         .tap(function (user) {
           bcrypt.compare(password, user.get('password'), function(err, result){
-            cb(result);
+            if (err) {
+              cb(err);
+            } else {
+              cb (result);
+            }
           });
 
         });

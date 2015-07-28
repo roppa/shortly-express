@@ -124,15 +124,18 @@ app.post('/login', function (req, res) {
   var username = req.body.username;
   var password = req.body.password;
 
-  User.login(username, password, function (result) {
-    if (result) {
-      req.session.user = true;
-      res.redirect('/');
-    } else {
-      res.redirect('/login');
-    }
-  });
-
+  try {
+    User.login(username, password, function (result) {
+      if (result) {
+        req.session.user = true;
+        res.redirect('/');
+      } else {
+        res.redirect('/login');
+      }
+    });
+  } catch (e) {
+    res.redirect('/login');
+  }
 });
 
 app.get('/logout', function (req, res) {
